@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Parham · Login</title>
+<link rel="icon" href="/static/img/favicon-32.png">
+<link rel="apple-touch-icon" href="/static/img/favicon-180.png">
+<link rel="stylesheet" href="/static/css/fonts.css">
+<link rel="stylesheet" href="/static/css/theme.css">
+<link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+{% include "_icons.html" %}
+<a class="telegram-fab" href="https://t.me/rvivl" target="_blank" rel="noopener" title="پشتیبانی تلگرام / Telegram Support">
+  <svg><use href="#icon-telegram"/></svg>
+</a>
+<div class="auth-shell">
+  <div class="sparkle-field"></div>
+  <div class="auth-card">
+    <img class="auth-logo" src="/static/img/logo-square.png" alt="StanNG">
+    <div class="brand-title" data-i18n="login_title">ورود به پنل</div>
+    <div class="brand-sub" data-i18n="login_sub">با نام کاربری و رمز عبور خود وارد شوید</div>
+
+    <form id="loginForm" class="shake-target" autocomplete="off">
+      <div class="field">
+        <label data-i18n="setup_username_label">نام کاربری</label>
+        <div class="input-wrap">
+          <svg class="input-icon"><use href="#icon-user-circle"/></svg>
+          <input class="input" type="text" id="username" name="username" required autocomplete="username">
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="setup_password_label">رمز عبور</label>
+        <div class="input-wrap">
+          <svg class="input-icon"><use href="#icon-key"/></svg>
+          <input class="input" type="password" id="password" name="password" required autocomplete="current-password">
+          <button type="button" class="input-toggle" data-toggle-for="password"><svg width="18" height="18"><use href="#icon-eye"/></svg></button>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block mt-20" id="loginBtn">
+        <span class="btn-label" data-i18n="login_submit">ورود</span>
+      </button>
+    </form>
+
+    <div class="flex justify-between items-center mt-24">
+      <div class="lang-toggle">
+        <button type="button" data-lang="fa">FA</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+      <button class="icon-btn" id="themeToggle" title="theme">
+        <svg><use href="#icon-moon"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/i18n.js"></script>
+<script src="/static/js/common.js"></script>
+<script>
+document.querySelectorAll('.lang-toggle button').forEach(btn => {
+  btn.addEventListener('click', () => { STANNG.setLang(btn.dataset.lang); STANNG.playSfx('toggle', 0.3); });
+});
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const next = STANNG.getTheme() === 'dark' ? 'light' : 'dark';
+  STANNG.setTheme(next);
+  STANNG.playSfx('toggle', 0.3);
+});
+document.querySelectorAll('[data-toggle-for]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.toggleFor);
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    btn.innerHTML = isPw
+      ? '<svg width="18" height="18"><use href="#icon-eye-off"/></svg>'
+      : '<svg width="18" height="18"><use href="#icon-eye"/></svg>';
+  });
+});
+
+const form = document.getElementById('loginForm');
+const btn = document.getElementById('loginBtn');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  STANNG.setLoading(btn, true);
+  try {
+    await STANNG.api('/api/login', { method: 'POST', body: { username, password } });
+    STANNG.toast(STANNG.t('login_success'), 'success');
+    setTimeout(() => window.location.href = '/dashboard', 500);
+  } catch (err) {
+    STANNG.setLoading(btn, false);
+    STANNG.shake(form);
+    let msg = STANNG.t('login_failed');
+    if ((err.detail || '').startsWith('locked:')) msg = STANNG.t('login_locked');
+    STANNG.toast(msg, 'error');
+  }
+});
+</script>
+</body>
+</html>
