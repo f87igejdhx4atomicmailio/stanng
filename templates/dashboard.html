@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Parham · Dashboard</title>
+<link rel="icon" href="/static/img/parham-favicon-32-red.png">
+<link rel="apple-touch-icon" href="/static/img/parham-favicon-180-red.png">
+<link rel="stylesheet" href="/static/css/fonts.css">
+<link rel="stylesheet" href="/static/css/theme.css">
+<link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+{% include "_icons.html" %}
+<div class="sparkle-field"></div>
+<a class="telegram-fab" href="{{ telegram_contact }}" target="_blank" rel="noopener" title="پشتیبانی تلگرام / Telegram Support">
+  <svg><use href="#icon-telegram"/></svg>
+</a>
+
+<div class="app-shell">
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div>
+        <div class="name">Parham</div>
+        <div class="sub">v<span id="appVersion">-</span></div>
+      </div>
+    </div>
+    <nav class="nav-group">
+      <div class="nav-item active" data-view="dashboard"><svg><use href="#icon-dashboard"/></svg><span data-i18n="nav_dashboard">داشبورد</span></div>
+      <div class="nav-item" data-view="inbounds"><svg><use href="#icon-users"/></svg><span data-i18n="nav_inbounds">کاربران</span><span class="badge" id="navInboundCount">0</span></div>
+      <div class="nav-item" data-view="traffic"><svg><use href="#icon-traffic"/></svg><span data-i18n="nav_traffic">ترافیک</span></div>
+      <div class="nav-item" data-view="security"><svg><use href="#icon-shield"/></svg><span data-i18n="nav_security">امنیت</span></div>
+      <div class="nav-item" data-view="settings"><svg><use href="#icon-settings"/></svg><span data-i18n="nav_settings">تنظیمات</span></div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="nav-item" id="logoutBtn"><svg><use href="#icon-logout"/></svg><span data-i18n="nav_logout">خروج</span></div>
+    </div>
+  </aside>
+
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column;">
+    <header class="topbar">
+      <div class="flex items-center gap-12">
+        <button class="icon-btn menu-toggle" id="menuToggle"><svg><use href="#icon-menu"/></svg></button>
+        <h1 id="viewTitle" data-i18n="nav_dashboard">داشبورد</h1>
+      </div>
+      <div class="topbar-actions">
+        <div class="lang-toggle">
+          <button type="button" data-lang="fa">FA</button>
+          <button type="button" data-lang="en">EN</button>
+        </div>
+        <button class="icon-btn" id="soundToggle" title="sound"><svg><use href="#icon-bolt"/></svg></button>
+        <button class="icon-btn" id="themeToggle" title="theme"><svg><use href="#icon-moon"/></svg></button>
+      </div>
+    </header>
+
+    <main class="main-content">
+
+      <!-- ============ DASHBOARD VIEW ============ -->
+      <section class="view active" id="view-dashboard">
+        <div class="grid mb-16">
+          <div class="col-3 win stat-card">
+            <div class="label"><svg><use href="#icon-cpu"/></svg><span data-i18n="dash_cpu">پردازنده</span></div>
+            <div class="value" id="statCpu">--%</div>
+            <div class="bar progress-amethyst"><span id="barCpu" style="width:0%"></span></div>
+          </div>
+          <div class="col-3 win stat-card">
+            <div class="label"><svg><use href="#icon-memory"/></svg><span data-i18n="dash_ram">حافظه</span></div>
+            <div class="value" id="statMem">--%</div>
+            <div class="bar progress-azure"><span id="barMem" style="width:0%"></span></div>
+          </div>
+          <div class="col-3 win stat-card">
+            <div class="label"><svg><use href="#icon-clock"/></svg><span data-i18n="dash_uptime">زمان فعالیت</span></div>
+            <div class="value" id="statUptime" style="font-size:19px;">--</div>
+          </div>
+          <div class="col-3 win stat-card">
+            <div class="label"><svg><use href="#icon-globe"/></svg><span data-i18n="dash_location">موقعیت سرور</span></div>
+            <div class="value" id="statLocation" style="font-size:15px;">--</div>
+          </div>
+        </div>
+
+        <div class="grid mb-16">
+          <div class="col-4 win stat-card">
+            <div class="label"><svg><use href="#icon-traffic"/></svg><span data-i18n="dash_total_traffic">کل ترافیک</span></div>
+            <div class="value" id="statTotalTraffic">0 B</div>
+            <div class="small muted flex gap-12 mt-8">
+              <span><svg width="12" height="12" style="vertical-align:-1px"><use href="#icon-upload"/></svg> <span id="statUp">0 B</span></span>
+              <span><svg width="12" height="12" style="vertical-align:-1px"><use href="#icon-download"/></svg> <span id="statDown">0 B</span></span>
+            </div>
+          </div>
+          <div class="col-4 win stat-card">
+            <div class="label"><svg><use href="#icon-bolt"/></svg><span data-i18n="dash_active_conn">اتصالات فعال</span></div>
+            <div class="value" id="statActiveConn">0</div>
+          </div>
+          <div class="col-4 win stat-card">
+            <div class="label"><svg><use href="#icon-users"/></svg><span data-i18n="dash_total_inbounds">تعداد کاربران</span></div>
+            <div class="value" id="statInboundCount">0</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-8 win">
+            <div class="win-head"><h3><svg><use href="#icon-traffic"/></svg><span data-i18n="dash_hourly_chart">نمودار ترافیک ساعتی</span></h3></div>
+            <div class="win-body"><canvas id="trafficChart" height="240"></canvas></div>
+          </div>
+          <div class="col-4 win">
+            <div class="win-head"><h3><svg><use href="#icon-refresh"/></svg><span data-i18n="dash_ota_title">به‌روزرسانی پنل</span></h3></div>
+            <div class="win-body flex-col gap-12">
+              <div class="small muted">Current: <b id="otaCurrent">-</b></div>
+              <div id="otaResult" class="small"></div>
+              <button class="btn btn-azure btn-sm" id="otaCheckBtn"><span data-i18n="dash_ota_check">بررسی نسخه جدید</span></button>
+              <button class="btn btn-primary btn-sm" id="otaUpdateBtn" style="display:none;"><svg width="16" height="16"><use href="#icon-download"/></svg><span data-i18n="dash_ota_update_btn">به‌روزرسانی همین الان</span></button>
+              <div class="small muted" id="otaUpdateHint" style="display:none;" data-i18n="dash_ota_update_hint">داده‌ی کاربران (data/db.json) هرگز در این فرآیند دست‌نخورده باقی می‌ماند.</div>
+              <hr style="border-color:var(--border-soft); width:100%; margin:6px 0;">
+              <button class="btn btn-emerald btn-sm w-full" id="quickAddBtn"><svg width="16" height="16"><use href="#icon-plus"/></svg><span data-i18n="dash_quick_add">افزودن کاربر جدید</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ INBOUNDS VIEW ============ -->
+      <section class="view" id="view-inbounds">
+        <div class="win">
+          <div class="win-head">
+            <h3><svg><use href="#icon-users"/></svg><span data-i18n="inb_title">مدیریت کاربران</span></h3>
+            <div class="flex gap-8 items-center win-head-tools">
+              <div class="input-wrap search-box">
+                <svg class="input-icon" width="16" height="16"><use href="#icon-search"/></svg>
+                <input class="input" style="padding:8px 10px 8px 36px; font-size:13px;" id="inboundSearch" data-i18n-placeholder="search_placeholder" placeholder="جستجوی کاربر...">
+              </div>
+              <button class="btn btn-emerald btn-sm" id="addInboundBtn"><svg width="16" height="16"><use href="#icon-plus"/></svg><span data-i18n="inb_add">کاربر جدید</span></button>
+            </div>
+          </div>
+          <div class="win-body no-pad">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th data-i18n="inb_name">نام</th>
+                    <th data-i18n="inb_status">وضعیت</th>
+                    <th data-i18n="inb_usage">مصرف</th>
+                    <th data-i18n="inb_expire">اعتبار</th>
+                    <th data-i18n="inb_max_conn">اتصال</th>
+                    <th data-i18n="inb_actions">عملیات</th>
+                  </tr>
+                </thead>
+                <tbody id="inboundsTableBody"></tbody>
+              </table>
+            </div>
+            <div class="empty-state" id="inboundsEmpty" style="display:none;">
+              <svg><use href="#icon-owl"/></svg>
+              <div data-i18n="inb_empty">هنوز کاربری اضافه نشده است</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TRAFFIC VIEW ============ -->
+      <section class="view" id="view-traffic">
+        <div class="grid mb-16">
+          <div class="col-6 win stat-card">
+            <div class="label"><svg><use href="#icon-upload"/></svg><span data-i18n="dash_upload">آپلود</span></div>
+            <div class="value" id="trafficUp">0 B</div>
+          </div>
+          <div class="col-6 win stat-card">
+            <div class="label"><svg><use href="#icon-download"/></svg><span data-i18n="dash_download">دانلود</span></div>
+            <div class="value" id="trafficDown">0 B</div>
+          </div>
+        </div>
+        <div class="win">
+          <div class="win-head"><h3><svg><use href="#icon-traffic"/></svg><span data-i18n="traffic_per_user">ترافیک به تفکیک کاربر</span></h3></div>
+          <div class="win-body no-pad">
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead><tr><th data-i18n="inb_name">نام</th><th data-i18n="dash_upload">آپلود</th><th data-i18n="dash_download">دانلود</th><th data-i18n="inb_usage">مجموع</th></tr></thead>
+                <tbody id="trafficTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ VIEW CLEAN IP حذف شد ============ -->
+
+      <!-- ============ SECURITY VIEW ============ -->
+      <section class="view" id="view-security">
+        <div class="win" style="max-width:520px;">
+          <div class="win-head"><h3><svg><use href="#icon-shield"/></svg><span data-i18n="sec_change_pass">تغییر نام کاربری / رمز عبور</span></h3></div>
+          <div class="win-body">
+            <form id="securityForm">
+              <div class="field">
+                <label data-i18n="sec_old_pass">رمز عبور فعلی</label>
+                <div class="input-wrap">
+                  <svg class="input-icon"><use href="#icon-key"/></svg>
+                  <input class="input" type="password" id="oldPassword" required autocomplete="current-password">
+                </div>
+              </div>
+              <div class="field">
+                <label data-i18n="sec_new_user">نام کاربری جدید</label>
+                <div class="input-wrap">
+                  <svg class="input-icon"><use href="#icon-user-circle"/></svg>
+                  <input class="input" type="text" id="newUsername" autocomplete="username">
+                </div>
+                <div class="small muted mt-8" data-i18n="sec_leave_blank">اگر نمی‌خواهید تغییر کند خالی بگذارید</div>
+              </div>
+              <div class="field">
+                <label data-i18n="sec_new_pass">رمز عبور جدید</label>
+                <div class="input-wrap">
+                  <svg class="input-icon"><use href="#icon-key"/></svg>
+                  <input class="input" type="password" id="newPassword" autocomplete="new-password">
+                </div>
+              </div>
+              <div class="field">
+                <label data-i18n="sec_new_pass_confirm">تکرار رمز عبور جدید</label>
+                <div class="input-wrap">
+                  <svg class="input-icon"><use href="#icon-key"/></svg>
+                  <input class="input" type="password" id="newPassword2" autocomplete="new-password">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" id="securityBtn"><span data-i18n="save">ذخیره</span></button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS VIEW ============ -->
+      <section class="view" id="view-settings">
+        <div class="grid">
+          <div class="col-6 win">
+            <div class="win-head"><h3><svg><use href="#icon-settings"/></svg><span data-i18n="settings_title">تنظیمات عمومی</span></h3></div>
+            <div class="win-body">
+              <div class="field">
+                <label data-i18n="settings_public_domain">دامنه عمومی (اختیاری، خالی = تشخیص خودکار)</label>
+                <input class="input" type="text" id="settingPublicDomain" placeholder="example.up.railway.app" style="direction:ltr;">
+              </div>
+              <div class="field flex items-center justify-between" style="border:1px solid var(--border-soft); border-radius:12px; padding:12px 14px;">
+                <div>
+                  <div style="font-weight:700; font-size:13.5px;" data-i18n="settings_keepalive">سیستم بیدارباش (Keep-Alive)</div>
+                  <div class="small muted mt-8" data-i18n="settings_keepalive_hint">هر ۱۰ دقیقه یک بار پینگ داخلی برای جلوگیری از خواب رفتن سرویس</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="settingKeepAlive" checked><span class="track"><span class="thumb"></span></span></label>
+              </div>
+              <div class="field flex items-center justify-between" style="border:1px solid var(--border-soft); border-radius:12px; padding:12px 14px;">
+                <div style="font-weight:700; font-size:13.5px;" data-i18n="settings_sound">جلوه‌های صوتی</div>
+                <label class="switch"><input type="checkbox" id="settingSound" checked><span class="track"><span class="thumb"></span></span></label>
+              </div>
+              <button class="btn btn-primary mt-12" id="saveSettingsBtn"><span data-i18n="save">ذخیره</span></button>
+            </div>
+          </div>
+
+          <div class="col-6 win">
+            <div class="win-head"><h3><svg><use href="#icon-shield"/></svg><span data-i18n="settings_advanced_title">تنظیمات پیشرفته کانفیگ</span></h3></div>
+            <div class="win-body">
+              <div class="small muted mb-16" data-i18n="settings_advanced_hint">این مقادیر پیش‌فرض هنگام ساخت کانفیگ‌های جدید برای همه کاربران اعمال می‌شوند.</div>
+              <div class="field">
+                <label data-i18n="inb_fingerprint">اثر انگشت پیش‌فرض (Fingerprint)</label>
+                <select class="input" id="settingFingerprint">
+                  <option value="chrome" data-i18n="fp_chrome">کروم</option>
+                  <option value="ios" data-i18n="fp_ios">آی‌اواس</option>
+                  <option value="firefox" data-i18n="fp_firefox">فایرفاکس</option>
+                  <option value="edge" data-i18n="fp_edge">اج</option>
+                  <option value="random" data-i18n="fp_random">تصادفی</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-i18n="settings_alpn">ALPN پیش‌فرض</label>
+                <select class="input" id="settingAlpn">
+                  <option value="http/1.1">http/1.1</option>
+                  <option value="h2,http/1.1">h2, http/1.1</option>
+                  <option value="h3,h2,http/1.1">h3, h2, http/1.1</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-i18n="settings_sni_override">SNI اختصاصی (Domain Fronting — اختیاری)</label>
+                <input class="input" type="text" id="settingSniOverride" placeholder="cdn.example.com" style="direction:ltr;">
+                <div class="small muted mt-8" data-i18n="settings_sni_override_hint">اگر خالی باشد، دامنه اصلی به‌عنوان SNI استفاده می‌شود.</div>
+              </div>
+              <div class="field flex items-center justify-between" style="border:1px solid var(--border-soft); border-radius:12px; padding:12px 14px;">
+                <div>
+                  <div style="font-weight:700; font-size:13.5px;" data-i18n="settings_fragment">حالت Fragment (بایپس DPI)</div>
+                  <div class="small muted mt-8" data-i18n="tip_fragment">فرگمنت به دور زدن فیلترینگ DPI کمک می‌کند</div>
+                </div>
+                <label class="switch"><input type="checkbox" id="settingFragmentEnabled" checked><span class="track"><span class="thumb"></span></span></label>
+              </div>
+              <div class="form-grid mt-12" id="fragmentFields">
+                <div class="field">
+                  <label data-i18n="settings_fragment_packets">Packets</label>
+                  <input class="input" type="text" id="settingFragmentPackets" placeholder="tlshello" style="direction:ltr;">
+                </div>
+                <div class="field">
+                  <label data-i18n="settings_fragment_length">Length</label>
+                  <input class="input" type="text" id="settingFragmentLength" placeholder="10-30" style="direction:ltr;">
+                </div>
+                <div class="field span-2">
+                  <label data-i18n="settings_fragment_interval">Interval</label>
+                  <input class="input" type="text" id="settingFragmentInterval" placeholder="10-20" style="direction:ltr;">
+                </div>
+              </div>
+              <button class="btn btn-primary mt-12" id="saveAdvancedBtn"><span data-i18n="save">ذخیره</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ MODAL: Add/Edit Inbound ============ -->
+<div class="modal-overlay" id="inboundModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="inboundModalTitle" data-i18n="inb_add">کاربر جدید</h3>
+      <button class="icon-btn" data-close-modal="inboundModal"><svg width="16" height="16"><use href="#icon-plus" style="transform:rotate(45deg)"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form id="inboundForm">
+        <input type="hidden" id="inboundUid">
+        <div class="form-grid">
+          <div class="field span-2">
+            <label data-i18n="inb_name">نام</label>
+            <input class="input" type="text" id="fName" required maxlength="64">
+          </div>
+          <div class="field">
+            <label data-i18n="inb_quota">حجم مجاز (GB)</label>
+            <input class="input" type="number" id="fQuota" min="0" step="0.1" placeholder="0 = ∞">
+          </div>
+          <div class="field">
+            <label data-i18n="inb_expire">اعتبار (روز)</label>
+            <input class="input" type="number" id="fExpire" min="0" step="1" placeholder="0 = ∞">
+          </div>
+          <div class="field">
+            <label data-i18n="inb_max_conn">حداکثر اتصال همزمان</label>
+            <input class="input" type="number" id="fMaxConn" min="0" step="1" placeholder="0 = ∞">
+          </div>
+          <div class="field">
+            <label data-i18n="inb_max_req">سقف درخواست</label>
+            <input class="input" type="number" id="fMaxReq" min="0" step="1" placeholder="0 = ∞">
+          </div>
+          <div class="field">
+            <label data-i18n="inb_fingerprint">اثر انگشت (Fingerprint)</label>
+            <select class="input" id="fFingerprint">
+              <option value="chrome" data-i18n="fp_chrome">کروم</option>
+              <option value="ios" data-i18n="fp_ios">آی‌اواس</option>
+              <option value="firefox" data-i18n="fp_firefox">فایرفاکس</option>
+              <option value="edge" data-i18n="fp_edge">اج</option>
+              <option value="random" data-i18n="fp_random">تصادفی</option>
+            </select>
+          </div>
+          <div class="field flex items-center justify-between" style="border:1px solid var(--border-soft); border-radius:12px; padding:10px 12px; margin-top:20px;">
+            <span class="small" data-i18n="inb_strict_ip">قفل روی اولین IP</span>
+            <label class="switch"><input type="checkbox" id="fStrictIp"><span class="track"><span class="thumb"></span></span></label>
+          </div>
+          <div class="field span-2">
+            <label data-i18n="inb_note">یادداشت</label>
+            <input class="input" type="text" id="fNote" maxlength="200">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close-modal="inboundModal"><span data-i18n="cancel">انصراف</span></button>
+      <button class="btn btn-primary" id="inboundSaveBtn"><span data-i18n="save">ذخیره</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: Links / QR (نسخه ۱.۴.۱) ============ -->
+<div class="modal-overlay" id="linksModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 data-i18n="inb_links">لینک‌ها</h3>
+      <button class="icon-btn" data-close-modal="linksModal"><svg width="16" height="16"><use href="#icon-plus" style="transform:rotate(45deg)"/></svg></button>
+    </div>
+    <div class="modal-body flex-col gap-16">
+      <div class="text-center">
+        <div class="qr-box" id="qrBox"><img id="qrImg" width="180" height="180" alt="QR"></div>
+      </div>
+      
+      <!-- لینک TLS -->
+      <div>
+        <label class="small muted mb-8" style="display:block;" data-i18n="inb_link_tls">کانفیگ TLS (پورت ۴۴۳)</label>
+        <div class="link-row"><code id="linkTls"></code><button class="icon-btn btn-sm" data-copy="linkTls"><svg width="15" height="15"><use href="#icon-link"/></svg></button></div>
+      </div>
+      
+      <!-- لینک اشتراک -->
+      <div>
+        <label class="small muted mb-8" style="display:block;" data-i18n="inb_sub_link">لینک اشتراک (سازگار با v2rayNG)</label>
+        <div class="link-row"><code id="linkSub"></code><button class="icon-btn btn-sm" data-copy="linkSub"><svg width="15" height="15"><use href="#icon-link"/></svg></button></div>
+        <div class="small muted mt-8" style="color:var(--gold-300);">
+          <svg width="14" height="14" style="vertical-align:-2px;"><use href="#icon-info"/></svg>
+          <span data-i18n="inb_sub_note">لینک اشتراک شامل دو کانفیگ نمایشی (وضعیت مصرف و پیام رایگان) به‌همراه کانفیگ TLS است.</span>
+        </div>
+      </div>
+      
+      <!-- لینک وضعیت -->
+      <div>
+        <label class="small muted mb-8" style="display:block;" data-i18n="inb_status_link">لینک وضعیت (برای کاربر)</label>
+        <div class="link-row"><code id="linkStatus"></code><button class="icon-btn btn-sm" data-copy="linkStatus"><svg width="15" height="15"><use href="#icon-link"/></svg></button></div>
+      </div>
+      
+      <!-- لینک JSON -->
+      <div>
+        <label class="small muted mb-8" style="display:block;" data-i18n="inb_sub_link_json">لینک اشتراک JSON</label>
+        <div class="link-row"><code id="linkSubJson"></code><button class="icon-btn btn-sm" data-copy="linkSubJson"><svg width="15" height="15"><use href="#icon-link"/></svg></button></div>
+      </div>
+
+      <!-- لینک DoH -->
+      <div>
+        <label class="small muted mb-8" style="display:block;" data-i18n="inb_doh_link">آدرس سرور DoH (DNS-over-HTTPS)</label>
+        <div class="link-row"><code id="linkDoh"></code><button class="icon-btn btn-sm" data-copy="linkDoh"><svg width="15" height="15"><use href="#icon-link"/></svg></button></div>
+        <div class="small muted mt-8" data-i18n="inb_doh_note" style="color:var(--gold-300);">
+          <svg width="14" height="14" style="vertical-align:-2px;"><use href="#icon-info"/></svg>
+          <span>قابل استفاده در کلاینت‌های v2rayNG / Sing-box و تنظیمات DNS امن مرورگرها</span>
+        </div>
+      </div>
+
+      <!-- توضیحات نهایی -->
+      <div class="small muted" style="border-top:1px solid var(--border-soft); padding-top:14px;">
+        <span data-i18n="inb_info_configs_note">
+          لینک اشتراک به‌صورت متن ساده (Plain Text) ارائه می‌شود و شامل موارد زیر است:
+          <br>📊 یک کانفیگ نمایشی برای نمایش وضعیت مصرف و اعتبار
+          <br>❤️ یک کانفیگ نمایشی با پیام «Parham is Free ❤️»
+          <br>🔗 یک کانفیگ TLS واقعی برای اتصال
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- مودال Clean IP حذف شد -->
+
+<script src="/static/js/i18n.js"></script>
+<script src="/static/js/common.js"></script>
+<script src="/static/js/chart-mini.js"></script>
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>
